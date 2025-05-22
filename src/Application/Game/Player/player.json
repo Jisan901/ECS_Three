@@ -1,0 +1,11 @@
+{
+    "name": "player",
+    "maxHitPoint": 200,
+    "hitPoint": 196,
+    "canAttack": true,
+    "damagePerHit": 45,
+    "resistance": 10,
+    "level": 1,
+    "file":"Ghost.fbx",
+    "tfile":"Ghost_Texture.png"
+}

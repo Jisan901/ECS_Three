@@ -1,0 +1,4 @@
+<div class="bg-neutral-800 text-white w-full h-full flex justify-end flex-col pb-6 absolute top-0 left-0 game-loading-bg z-[10]">
+    <span class="text-center text-[0.5rem] block w-full" id="loading_percentage"></span>
+    <span class="bg-yellow-500 block h-2 transition-width duration-[1000ms]" id="loading_percentagebar"></span>
+</div>
