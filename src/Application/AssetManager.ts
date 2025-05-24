@@ -1,9 +1,16 @@
+/*
+ECS
+v.0.0.2
+*/
+
+
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
-import { Group } from 'three';
-import type Application from './Application';
+import { Group, Object3D } from 'three';
+import type { Communicator } from '../ECS/Utils/Bus';
+import type { Events } from '../ECS/Utils/Events';
 
 
 // Define the structure of assets
@@ -26,8 +33,7 @@ const ASSETS: AssetMap = {
 };
 
 class AssetManager {
-    private eventTarget: EventTarget;
-    private application: Application;
+    private bus: Communicator<Events>;
     private assets: Record<number, any> = {};
     private totalFiles: number = 0;
     private loadedFiles: number = 0;
@@ -39,9 +45,8 @@ class AssetManager {
         obj: new OBJLoader(),
     };
 
-    constructor(eventTarget: EventTarget, application: any) {
-        this.eventTarget = eventTarget;
-        this.application = application;
+    constructor(bus: Communicator<Events>) {
+        this.bus = bus;
     }
 
     async loadLevel(which: number): Promise<void> {
@@ -51,14 +56,14 @@ class AssetManager {
         this.totalFiles = this.countFiles(assetData);
         this.loadedFiles = 0;
 
-        this.eventTarget.dispatchEvent(new CustomEvent('progress', { detail: { progress: 0, show: true } }));
+        this.bus.emit('progress', { progress: 0, show: true  }); ///bus v2
         await this.load(ASSETS, which, this.assets);
 
         const callback = () => {
-            this.eventTarget.dispatchEvent(new CustomEvent('loaded', { detail: { level: which } }));
+            this.bus.emit('assetLoaded',  { level: which });
         };
 
-        this.eventTarget.dispatchEvent(new CustomEvent('progress', { detail: { progress: 100, hide: true, callback } }));
+        this.bus.emit('progress', { progress: 100, hide: true, callback } );
     }
 
     private countFiles(data: AssetStructure): number {
@@ -144,11 +149,11 @@ class AssetManager {
         
         this.loadedFiles++;
         const progress = (this.loadedFiles / this.totalFiles) * 100;
-        this.eventTarget.dispatchEvent(new CustomEvent('progress', { detail: { progress } }));
+        this.bus.emit('progress', { progress: progress }); ///bus v2
     }
     
 
-    getAssets(level: number): any {
+    getAssets<T extends Object3D>(level: number): {[key:string]:T} {
         return this.assets[level];
     }
 
@@ -168,3 +173,8 @@ class AssetManager {
 }
 
 export default AssetManager;
+
+// const b : AssetManager | undefined =  new AssetManager()
+// const v=  b?.getAssets<Mesh>(1)
+// v.character
+// v.chara

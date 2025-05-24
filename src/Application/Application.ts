@@ -13,7 +13,7 @@ class Application {
         this.ui = ui;
         this.controller = controller;
         this.eventTarget = __eventTarget;
-        this.assetManager = new AssetManager(__eventTarget, this);
+        this.assetManager = new AssetManager(__eventTarget);
     }
 
     async init(): Promise<void> {

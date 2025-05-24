@@ -1,9 +1,12 @@
+import type { ComponentTypeId } from "./Types";
 import type * as ECS from "./World";
 
 export interface System {
+    entities: ECS.EntityId[];
     name: string;
-    onStart?(world: ECS.World): void;
-    update(world: ECS.World, delta: number): void;
-    onDestroy?(world: ECS.World): void;
+    onStart?(): void;
+    query:(types:ComponentTypeId[])=> void;
+    update(): void;
+    onDestroy?(): void;
   }
   

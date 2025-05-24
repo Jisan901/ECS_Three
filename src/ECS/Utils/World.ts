@@ -1,7 +1,7 @@
 import type { System } from "./System";
 import type { Component, ComponentTypeId } from "./Types";
 
-type EntityId = number;
+export type EntityId = number;
 
 
 export class World {
@@ -30,7 +30,18 @@ export class World {
     const mask = this.entityMasks.get(entity)!;
     mask[typeId] = true;
   }
+  removeEntity(entity: EntityId): void {
+    if (!this.entities.has(entity)) {
+      return; // Entity does not exist, exit early
+    }
 
+    this.entities.delete(entity);
+    for (const componentMap of this.components.values()) {
+      componentMap.delete(entity);
+    }
+
+    this.entityMasks.delete(entity);
+  }
   getComponent<T extends Component>(entity: EntityId, type: ComponentTypeId): T | undefined {
     return this.components.get(type)?.get(entity) as T | undefined;
   }
@@ -55,10 +66,10 @@ export class World {
   registerSystem(system: System): void {
     this.systems.push(system);
   }
-
-  update(delta: number): void {
+  
+  update(): void {
     for (const system of this.systems) {
-      system.update(this, delta);
+      system.update();
     }
   }
 }
