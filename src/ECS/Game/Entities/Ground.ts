@@ -7,7 +7,7 @@ import { Physics } from '../Components/Physics';
 export default ()=>{
     const ground = ECS.instance.world.createEntity()
     const mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2000, 2000),
+        new THREE.PlaneGeometry(200, 200),
         new THREE.MeshStandardMaterial({color: 0x00ff00})
     )
     mesh.rotation.x = -Math.PI / 2; 

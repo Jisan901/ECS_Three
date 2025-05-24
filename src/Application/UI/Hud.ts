@@ -9,12 +9,11 @@ export default class HudUI extends UIComponent {
         super(dom, parent);
         this.root = ui;
 
-        this.root.global.addEventListener("showHud", () => {
-            this.show();
-        });
-
-        this.root.global.addEventListener("hideHud", () => {
-            this.hide();
+        this.root.bus.on("setGamePadVisibility", (e) => {
+            if (e.visible) {
+                this.show();
+            }
+            else this.hide();
         });
     }
 

@@ -1,19 +1,32 @@
+import UI from "../../Application/UserInterface";
 import { ECS } from "../Utils/bootstrap";
 import {Entities} from "./Entities";
-import { PhysicsSystem } from "./Systems/Physics";
+import { Systems } from "./Systems";
+
 export class Game {
     public entitiesCreator: (()=>void)[];
     public ecs: ECS;
+    public ui: UI;
     constructor() {
-        this.init();
         this.entitiesCreator = Entities;
         this.ecs = ECS.instance;
+        this.ui = new UI(ECS.instance.bus);
+        this.ui.wrapper.appendChild(this.ecs.Rendering.renderer.domElement)
+        console.log(ECS.instance);
+
+        this.init();
     }
-    init() {
+    async init() {
+        this.ui.init()
+        await this.ecs.assetManager.loadLevel(1)
         this.entitiesCreator.forEach(e=>{
             e()
         })
-        ECS.instance.world.registerSystem(new PhysicsSystem())
+        Systems.forEach(e=>{
+            ECS.instance.world.registerSystem(new e())
+        })
+        console.log(ECS.instance);
+        
     }
 }
 

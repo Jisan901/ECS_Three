@@ -2,16 +2,10 @@ import loadingDom from './loading.htui';
 import UIComponent from '../Utils/UIComponent.ts';
 import type UI from '../UserInterface.ts';
 
-interface ProgressEventDetail {
-    progress: number;
-    show?: boolean;
-    hide?: boolean;
-    callback?: () => void;
-}
 
 export default class LoadingUI extends UIComponent {
     root: UI;
-    bindedHandler: (e: CustomEvent<ProgressEventDetail>) => void;
+    bindedHandler: (e: { progress: number; show?: boolean | undefined; hide?: boolean | undefined; callback?: (() => void) | undefined; }) => void;
     loadDom: HTMLElement | null;
     loadDombar: HTMLElement | null;
     showed: boolean;
@@ -21,7 +15,7 @@ export default class LoadingUI extends UIComponent {
         this.root = ui;
 
         this.bindedHandler = this.handleProgress.bind(this);
-        this.root.global.addEventListener("progress", this.bindedHandler as EventListener);
+        this.root.bus.on("progress", this.bindedHandler);
 
         this.loadDom = this.dom.querySelector<HTMLElement>("#loading_percentage");
         this.loadDombar = this.dom.querySelector<HTMLElement>("#loading_percentagebar");
@@ -35,8 +29,8 @@ export default class LoadingUI extends UIComponent {
         this.showed = true;
     }
 
-    handleProgress(e: CustomEvent<ProgressEventDetail>) {
-        const { progress, show, hide, callback } = e.detail;
+    handleProgress(e:{ progress: number; show?: boolean | undefined; hide?: boolean | undefined; callback?: (() => void) | undefined; }) {
+        const { progress, show, hide, callback } = e;
 
         if (show) {
             this.show();

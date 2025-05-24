@@ -14,13 +14,14 @@ export class PhysicsSystem implements System {
    
     constructor() {
         this.ecs = ECS.instance;
+
         this.onStart()
     }
 
     onStart() {
         // Initialize physics entities
         this.query();
-        this.entities.forEach(this.createPhysicsBody);
+        this.entities.forEach(this.createPhysicsBody.bind(this));
     }
 
     query() {
@@ -63,6 +64,8 @@ export class PhysicsSystem implements System {
     onEntityRemoved = (entity: EntityId) => this.destroyPhysicsBody(entity);
 
     private createPhysicsBody(entity: EntityId) {
+        console.log(this);
+        
         const physics = this.ecs.world.getComponent<Physics>(entity, Types.Physics);
         const renderable = this.ecs.world.getComponent<Renderable>(entity, Types.Renderable);
         
