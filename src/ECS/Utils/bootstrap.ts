@@ -6,6 +6,8 @@ import { Physics, type PhysicsEngine } from './Physics';
 import type { Rendering } from './Rendering';
 import setUpThree from './Rendering';
 import AssetManager from '../../Application/AssetManager';
+import { InputData } from '../../Application/Utils/GamePad';
+import { Debug } from './Debug';
 
 export class ECS {
   static instance: ECS;
@@ -16,14 +18,19 @@ export class ECS {
   readonly Rendering :Rendering;
   readonly Physics: PhysicsEngine; // Placeholder for the physics engine
   readonly assetManager: AssetManager;
-
+  readonly Input:InputData;
+  readonly dev:Debug;
+  
+  
   constructor(physicsEngine:PhysicsEngine) {
     this.world = new World();
     this.time = new Time();
     this.bus = new Communicator();
     this.Rendering = setUpThree();
     this.assetManager = new AssetManager(this.bus)
+    this.Input = new InputData()
     this.Physics = physicsEngine;
+    this.dev = new Debug()
 
 
 

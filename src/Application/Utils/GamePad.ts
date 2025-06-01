@@ -43,7 +43,7 @@ type HUDData = {
 
 
 
-export class LightGamePad {
+export class InputData {
     keyDown = false;
     pointerDown = false;
     forward = false;
@@ -55,15 +55,23 @@ export class LightGamePad {
     phi = 0;
     theta = 0;
     hudData: HUDData = { deltaX: 0, deltaY: 0, middle: 0 };
-
+    rotationPad!: CustomPad;
+}
+export class LightGamePad {
     dom: HTMLElement;
+    data:InputData;
     movementpad?: MovementPad;
     wasd?: WASD;
     rotationPad!: CustomPad;
 
-    constructor(dom: HTMLElement) {
+    constructor(dom: HTMLElement, dataClass:InputData) {
         this.dom = dom;
+        this.data = dataClass
+    }
 
+    setup(dom:HTMLElement): void {
+        this.dom = dom;
+        
         this.setupBothPad();
 
         if (window.matchMedia('(pointer: coarse)').matches) {
@@ -73,7 +81,7 @@ export class LightGamePad {
         }
     }
 
-    setup(): void {
+    alignPads(){
         this.movementpad?.alignAndConfigPad();   
         this.movementpad?.resetHandlePosition();   
     }
@@ -85,29 +93,29 @@ export class LightGamePad {
             this.movementpad = new MovementPad(this.dom);
             this.movementpad.setState = (event: { detail: HUDData }) => {
                 if (this.movementpad!.mouseDown) {
-                    this.keyDown = true;
-                    this.hudData = event.detail;
+                    this.data.keyDown = true;
+                    this.data.hudData = event.detail;
 
-                    this.forward = event.detail.deltaY > event.detail.middle;
-                    this.backward = event.detail.deltaY < event.detail.middle;
+                    this.data.forward = event.detail.deltaY > event.detail.middle;
+                    this.data.backward = event.detail.deltaY < event.detail.middle;
 
-                    this.left = event.detail.deltaX > event.detail.middle;
-                    this.right = event.detail.deltaX < event.detail.middle;
+                    this.data.left = event.detail.deltaX > event.detail.middle;
+                    this.data.right = event.detail.deltaX < event.detail.middle;
                 } else {
-                    this.keyDown = false;
-                    this.hudData = { deltaX: 0, deltaY: 0, middle: 0 };
-                    this.left = this.right = this.forward = this.backward = false;
+                    this.data.keyDown = false;
+                    this.data.hudData = { deltaX: 0, deltaY: 0, middle: 0 };
+                    this.data.left = this.data.right = this.data.forward = this.data.backward = false;
                 }
             };
         } else {
             this.wasd = new WASD();
             this.wasd.setState = () => {
-                this.keyDown = this.wasd!.keyDown;
-                this.forward = this.wasd!.keys.w;
-                this.backward = this.wasd!.keys.s;
-                this.left = this.wasd!.keys.a;
-                this.right = this.wasd!.keys.d;
-                this.hudData = {
+                this.data.keyDown = this.wasd!.keyDown;
+                this.data.forward = this.wasd!.keys.w;
+                this.data.backward = this.wasd!.keys.s;
+                this.data.left = this.wasd!.keys.a;
+                this.data.right = this.wasd!.keys.d;
+                this.data.hudData = {
                     deltaX: this.wasd!.deltaX,
                     deltaY: this.wasd!.deltaY,
                     middle: 0,
@@ -116,10 +124,11 @@ export class LightGamePad {
         }
 
         this.rotationPad = new CustomPad(this.dom);
+        this.data.rotationPad = this.rotationPad
         this.rotationPad.setState = () => {
-            this.phi = this.rotationPad.phi;
-            this.theta = this.rotationPad.theta;
-            this.pointerDown = this.rotationPad.isTouching;
+            this.data.phi = this.rotationPad.phi;
+            this.data.theta = this.rotationPad.theta;
+            this.data.pointerDown = this.rotationPad.isTouching;
         };
     }
 
@@ -136,12 +145,12 @@ export class LightGamePad {
     }
 
     addButton(button: Button): void {
-        this.buttons[button.name] = button;
+        this.data.buttons[button.name] = button;
         this.dom.appendChild(button.dom);
     }
 
     addKey(key: WASDKey, keyCode: number): void {
-        this.buttons[key.name] = key;
+        this.data.buttons[key.name] = key;
         this.wasd!.keyStore[keyCode] = key;
     }
 }

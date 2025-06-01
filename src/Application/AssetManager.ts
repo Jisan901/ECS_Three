@@ -8,7 +8,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
-import { Group, Object3D } from 'three';
+import { Group } from 'three';
 import type { Communicator } from '../ECS/Utils/Bus';
 import type { Events } from '../ECS/Utils/Events';
 
@@ -153,7 +153,7 @@ class AssetManager {
     }
     
 
-    getAssets<T extends Object3D>(level: number): {[key:string]:T} {
+    getAssets<T>(level: number): T {
         return this.assets[level];
     }
 

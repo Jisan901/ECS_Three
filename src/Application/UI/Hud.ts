@@ -10,6 +10,8 @@ export default class HudUI extends UIComponent {
         this.root = ui;
 
         this.root.bus.on("setGamePadVisibility", (e) => {
+            console.log(e);
+            
             if (e.visible) {
                 this.show();
             }

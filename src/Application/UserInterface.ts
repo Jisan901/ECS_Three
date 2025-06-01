@@ -18,7 +18,7 @@ class UI {
             throw new Error("Element with id 'wrapper' not found");
         }
         this.wrapper = wrapperEl;
-        document.body.onclick = () => this.wrapper.requestFullscreen();
+        document.body.onclick = () => document.body.requestFullscreen();
         this.components = {};
     }
 

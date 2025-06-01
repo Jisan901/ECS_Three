@@ -105,17 +105,18 @@ export class PhysicsSystem implements System {
         let collider = physics.collider;
         if (!collider&&physics.colliderDesc){
             // Create collider
-            physics.colliderDesc.setTranslation(
-                renderable?.mesh.position.x??0,
-                renderable?.mesh.position.y??0,
-                renderable?.mesh.position.z??0
-            );
-            physics.colliderDesc.setRotation(new Quaternion(
-                renderable?.mesh.quaternion.x??0,
-                renderable?.mesh.quaternion.y??0,
-                renderable?.mesh.quaternion.z??0,
-                renderable?.mesh.quaternion.w??1
-            ));
+            // physics.colliderDesc.setTranslation(
+            //     renderable?.mesh.position.x??0,
+            //     renderable?.mesh.position.y??0,
+            //     renderable?.mesh.position.z??0
+            // );
+            // physics.colliderDesc.setRotation(new Quaternion(
+            //     renderable?.mesh.quaternion.x??0,
+            //     renderable?.mesh.quaternion.y??0,
+            //     renderable?.mesh.quaternion.z??0,
+            //     renderable?.mesh.quaternion.w??1
+            // ));
+            
             collider = this.ecs.Physics.world.createCollider(
                 physics.colliderDesc, 
                 body

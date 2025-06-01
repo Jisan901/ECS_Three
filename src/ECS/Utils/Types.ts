@@ -13,6 +13,9 @@ export const Types = {
     Input: 5,
     Sound: 6,
     Network: 7,
+    PlayerController:8,
+    PlayerPhysics:9,
+    Animation:10
   } as const;
   
 export type ComponentTypes = keyof typeof Types;

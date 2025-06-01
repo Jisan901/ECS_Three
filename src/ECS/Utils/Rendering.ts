@@ -25,11 +25,19 @@ export default function setUpThree() {
     );
     camera.position.set(0, 0, -10);
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.update();
+    const debugCamera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.001,
+        5000
+    );
+    debugCamera.position.set(0, 0, -10);
+
+    //const controls = new OrbitControls(debugCamera, document.body);
+   // controls.update();
     function render(scene: THREE.Scene) {
         renderer.renderAsync(scene, camera);
-        controls.update()
+        //controls.update()
     }
 
     // Handle resizing
@@ -39,6 +47,8 @@ export default function setUpThree() {
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+        debugCamera.aspect = width / height;
+        debugCamera.updateProjectionMatrix();
     });
 
     // Return essentials
