@@ -8,6 +8,8 @@ import setUpThree from './Rendering';
 import AssetManager from '../../Application/AssetManager';
 import { InputData } from '../../Application/Utils/GamePad';
 import { Debug } from './Debug';
+import GUI from 'lil-gui';
+import { Global } from './Global';
 
 export class ECS {
   static instance: ECS;
@@ -20,9 +22,13 @@ export class ECS {
   readonly assetManager: AssetManager;
   readonly Input:InputData;
   readonly dev:Debug;
-  
+  readonly lil:GUI;
+  readonly Global:Global;
   
   constructor(physicsEngine:PhysicsEngine) {
+    this.dev = new Debug()
+    this.lil = new GUI()
+    this.Global = new Global();
     this.world = new World();
     this.time = new Time();
     this.bus = new Communicator();
@@ -30,8 +36,7 @@ export class ECS {
     this.assetManager = new AssetManager(this.bus)
     this.Input = new InputData()
     this.Physics = physicsEngine;
-    this.dev = new Debug()
-
+    
 
 
     ECS.instance = this; // Singleton
@@ -49,7 +54,7 @@ export function bootstrap(p:PhysicsEngine,f:()=>void) {
   let lastTime = performance.now();
 
   const ecs = new ECS(p);
-
+  ecs.Global._useGUIDebug();
   f() // init fn 
 
   function tick(now: number) {

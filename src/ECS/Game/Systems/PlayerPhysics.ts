@@ -42,6 +42,8 @@ export class PlayerPhysicsSystem implements System {
     let moveVector = moveController?.moveVector.clone();
     physics.isGrounded = controller.computedGrounded();
 
+    ECS.instance.Global.isGrounded = physics.isGrounded;
+    
     if (physics.isGrounded) {
       if (physics.isJumping) {
         physics.maxJumpHeight -= physics.jumpVelocity;

@@ -3,7 +3,6 @@ import { ECS } from '../../Utils/bootstrap';
 import type { System } from '../../Utils/System';
 import type { EntityId } from '../../Utils/World';
 import type { Animation } from '../Components/Animation';
-import * as THREE from 'three/webgpu';
 
 export class AnimationSystem implements System {
   entities: EntityId[] = [];

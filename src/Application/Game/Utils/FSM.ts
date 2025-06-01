@@ -1,46 +1,50 @@
 import type { State } from "./CommonStates";
 
-type ExtractStateName<T extends State> = T["name"];
-type StateInstance = State & { name: string };
 
-export class FiniteStateMachine<
-  TProps,
-  TStateMap extends Record<string, StateInstance>
-> {
-  public props: TProps;
-  public previousState?: TStateMap[keyof TStateMap];
-  public currentState?: TStateMap[keyof TStateMap];
-  public States: TStateMap;
+export class FiniteStateMachine<TProps> {
+    public props: TProps;
+    public previousState?: State;
+    public currentState?: State;
+    public States: Record<string, State> = {};
 
-  constructor(props: TProps, states: TStateMap) {
-    this.props = props;
-    this.States = states;
-  }
+    constructor(props: TProps) {
+        this.props = props;
+    }
 
-  protected onAction(newState: TStateMap[keyof TStateMap]): void {}
+    addState(state: State): void {
+        if (this.States.hasOwnProperty(state.name)) return;
+        this.States[state.name] = state;
+    }
 
-  dispatch<K extends keyof TStateMap>(name: K): void {
-    const nextState = this.States[name];
-    if (!nextState || this.currentState?.name === nextState.name) return;
+    /**
+     * Called when the state changes. Override in subclasses if needed.
+     */
+    onAction(newState: State): void {}
 
-    this.previousState = this.currentState;
-    this.currentState = nextState;
+    dispatch(name: string): void {
+        if (!this.States.hasOwnProperty(name)) return;
+        if (this.currentState?.name === name) return;
 
-    this.previousState?.exit?.();
-    this.currentState.enter?.();
+        const nextState = this.States[name];
 
-    this.onAction(this.currentState);
-  }
+        this.previousState = this.currentState;
+        this.currentState = nextState;
 
-  update(): void {
-    this.currentState?.update?.();
-  }
+        this.previousState?.exit?.();
+        this.currentState.enter?.(this.previousState);
 
-  getCurrentState(): TStateMap[keyof TStateMap] | undefined {
-    return this.currentState;
-  }
+        this.onAction(this.currentState);
+    }
 
-  getPreviousState(): TStateMap[keyof TStateMap] | undefined {
-    return this.previousState;
-  }
+    update(): void {
+        this.currentState?.update?.();
+    }
+
+    getCurrentState(): State | undefined {
+        return this.currentState;
+    }
+
+    getPreviousState(): State | undefined {
+        return this.previousState;
+    }
 }

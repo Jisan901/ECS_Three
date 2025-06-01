@@ -5,7 +5,7 @@ import type { FiniteStateMachine } from "../../../Application/Game/Utils/FSM";
   
 export type Animation = Component & {
   mesh: Object3D;
-  animationMap: FiniteStateMachine<any,any>;
+  animationMap: FiniteStateMachine<any>;
   mixer: AnimationMixer
 };
 

@@ -30,7 +30,6 @@ export class PlayerControllerSystem implements System {
     private camera_holder_pawn = new THREE.Object3D();
     private previousArmLen = 6;
     private timeElapsed = 0;
-    private testLen = 0;
     constructor() {
         this.camera = ECS.instance.Rendering.camera;
         this.raycaster = new THREE.Raycaster();
@@ -88,8 +87,6 @@ export class PlayerControllerSystem implements System {
 
             const cameraTarget = target.position.clone().add(new THREE.Vector3(0, 3, 0));
             const armVector = new THREE.Vector3(0, 0, -armLength).applyQuaternion(targetQuat);
-            this.ecs.dev.log(target.position.length()-this.testLen)
-            this.testLen = target.position.length()
             this.camera_holder_pawn.position.lerp(cameraTarget.clone().add(armVector), smoothFactor);
             this.camera_holder.position.copy(new THREE.Vector3(-1, 0, 0));
             this.camera_holder_pawn.lookAt(cameraTarget);

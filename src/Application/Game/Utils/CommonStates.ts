@@ -1,8 +1,8 @@
 import * as THREE from 'three/webgpu';
 import type { PlayerEntity } from '../Player/PlayerEntity';
+import type { FiniteStateMachine } from './FSM';
 
 // Define shared props for all states
-export type StateProps = PlayerEntity
 
 // Optional transition info passed to enter()
 export type TransitionProps  = State
@@ -19,92 +19,90 @@ export interface InputKeys {
 }
 
 export class State {
-    protected props: StateProps;
     public name: string;
     public action?:THREE.AnimationAction
-    constructor(props: StateProps) {
-        this.props = props;
+    constructor() {
         this.name = "nostate"
     }
 
     enter(_props?: TransitionProps): void {}
     transition(_props?: TransitionProps): void {}
     exit(_props?: TransitionProps): void {}
-    update(_props?: number): void {}
+    update(): void {}
 }
 
 
 
-export class Idle extends State {
-    public name = "idle";
-    public action: THREE.AnimationAction;
+// export class Idle extends State {
+//     public name = "idle";
+//     public action: THREE.AnimationAction;
 
-    constructor(props: StateProps) {
-        super(props);
-        this.action = this.props.animations[this.name];
-    }
+//     constructor(props: StateProps) {
+//         super(props);
+//         this.action = this.props.animations[this.name];
+//     }
 
-    enter(prev?: TransitionProps): void {
-        if (!this.action) return;
+//     enter(prev?: TransitionProps): void {
+//         if (!this.action) return;
 
-        this.action.reset();
-        if (prev?.action) {
-            this.action.crossFadeFrom(prev.action, 0.3, true);
-        }
-        this.action.play();
-    }
+//         this.action.reset();
+//         if (prev?.action) {
+//             this.action.crossFadeFrom(prev.action, 0.3, true);
+//         }
+//         this.action.play();
+//     }
 
-    update(delta: number): void {
-        const pad = this.props.controller.inputSystem.keys;
+//     update(delta: number): void {
+//         const pad = this.props.controller.inputSystem.keys;
 
-        if (!this.props.controller.component.physics.isGrounded) {
-            this.props.stateMachine.dispatch('falling');
-        } else if (pad.forward || pad.backward || pad.left || pad.right) {
-            this.props.stateMachine.dispatch('walk');
-        } else if (pad.actionPressed.pressed) {
-            this.props.stateMachine.dispatch('attack');
-        } else if (pad.spacePressed.pressed) {
-            this.props.stateMachine.dispatch('jump');
-        } else if (pad.autoSwitch.switch) {
-            this.props.stateMachine.dispatch('run');
-        }
-    }
-}
+//         if (!this.props.controller.component.physics.isGrounded) {
+//             this.props.stateMachine.dispatch('falling');
+//         } else if (pad.forward || pad.backward || pad.left || pad.right) {
+//             this.props.stateMachine.dispatch('walk');
+//         } else if (pad.actionPressed.pressed) {
+//             this.props.stateMachine.dispatch('attack');
+//         } else if (pad.spacePressed.pressed) {
+//             this.props.stateMachine.dispatch('jump');
+//         } else if (pad.autoSwitch.switch) {
+//             this.props.stateMachine.dispatch('run');
+//         }
+//     }
+// }
 
-export class Fall extends State {
-    public name = "falling";
-    public action: THREE.AnimationAction;
+// export class Fall extends State {
+//     public name = "falling";
+//     public action: THREE.AnimationAction;
 
-    constructor(props: StateProps) {
-        super(props);
-        this.action = this.props.animations[this.name];
-    }
+//     constructor(props: StateProps) {
+//         super(props);
+//         this.action = this.props.animations[this.name];
+//     }
 
-    enter(prev?: TransitionProps): void {
-        if (!this.action) return;
+//     enter(prev?: TransitionProps): void {
+//         if (!this.action) return;
 
-        this.action.reset();
-        if (prev?.action) {
-            this.action.crossFadeFrom(prev.action, 0.5, true);
-        }
-        this.action.play();
-    }
+//         this.action.reset();
+//         if (prev?.action) {
+//             this.action.crossFadeFrom(prev.action, 0.5, true);
+//         }
+//         this.action.play();
+//     }
 
-    update(delta: number): void {
-        const pad = this.props.controller.inputSystem.keys;
-        if (this.props.controller.component.physics.isGrounded) {
-            if (pad.forward || pad.backward || pad.left || pad.right) {
-                this.props.stateMachine.dispatch('walk');
-            } else if (pad.actionPressed.pressed) {
-                this.props.stateMachine.dispatch('attack');
-            } else if (pad.autoSwitch.switch) {
-                this.props.stateMachine.dispatch('run');
-            } else {
-                this.props.stateMachine.dispatch('idle');
-            }
-        }
-    }
-}
+//     update(delta: number): void {
+//         const pad = this.props.controller.inputSystem.keys;
+//         if (this.props.controller.component.physics.isGrounded) {
+//             if (pad.forward || pad.backward || pad.left || pad.right) {
+//                 this.props.stateMachine.dispatch('walk');
+//             } else if (pad.actionPressed.pressed) {
+//                 this.props.stateMachine.dispatch('attack');
+//             } else if (pad.autoSwitch.switch) {
+//                 this.props.stateMachine.dispatch('run');
+//             } else {
+//                 this.props.stateMachine.dispatch('idle');
+//             }
+//         }
+//     }
+// }
 
 export class Walk extends State {
     public name = "walk";

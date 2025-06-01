@@ -1,0 +1,20 @@
+# ECS Directory
+
+This directory is intended for the Entity-Component-System (ECS) implementation of the Three-G project.
+
+- Place all ECS-related source files here.
+- Include documentation and usage examples as needed.
+
+## Structure
+
+- `components/` - Component definitions
+- `systems/` - System logic
+- `entities/` - Entity management
+
+## Getting Started
+
+1. Add new components in the `components/` folder.
+2. Implement systems in the `systems/` folder.
+3. Manage entities in the `entities/` folder.
+
+For more details, refer to the main project documentation.

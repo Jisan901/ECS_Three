@@ -5,6 +5,8 @@ import { Renderable } from '../Components/Renderable';
 import { Vector3 } from 'three';
 import { PlayerPhysics } from '../Components/PlayerPhysics';
 import { PlayerController } from '../Components/PlayerControllerComponent';
+import { Animation } from '../Components/Animation';
+import { createPlayerAnimation } from '../AnimationMaps/PlayerAnimation';
 
 export default () => {
   const PLAYER_HEIGHT = 5;
@@ -34,11 +36,29 @@ export default () => {
   character.position.setY(-3.5)
   characterColliderMesh.add(character)
 
+  //animation
+  const mixer = new THREE.AnimationMixer(character);
+  const animations = assets['animations'];
+  const actionMap = {
+    idle: mixer.clipAction(animations['idle'].animations[0]),
+    walk: mixer.clipAction(animations['walk'].animations[0]),
+    run: mixer.clipAction(animations['run'].animations[0]),
+    falling: mixer.clipAction(animations['falling'].animations[0]),
+  }
+
+
+
 
   // Add Components
   ECS.instance.world.addComponent<Renderable>(entity, {
     __type: Renderable._type,
     mesh: characterColliderMesh,
+  });
+  ECS.instance.world.addComponent<Animation>(entity, {
+    __type: Animation._type,
+    mesh: character,
+    mixer,
+    animationMap: createPlayerAnimation(actionMap),
   });
   ECS.instance.world.addComponent<PlayerController>(entity, {
     __type: PlayerController._type,

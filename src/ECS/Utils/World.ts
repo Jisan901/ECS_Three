@@ -18,7 +18,7 @@ export class World {
     return id;
   }
 
-  addComponent<T extends Component>(entity: EntityId, component: T): void {
+  addComponent<T extends Component>(entity: EntityId, component: T): T {
     const typeId = component.__type;
 
     if (!this.components.has(typeId)) {
@@ -29,6 +29,8 @@ export class World {
 
     const mask = this.entityMasks.get(entity)!;
     mask[typeId] = true;
+    
+    return component;
   }
   removeEntity(entity: EntityId): void {
     if (!this.entities.has(entity)) {
