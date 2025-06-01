@@ -6,7 +6,7 @@ import { Physics } from '../Components/Physics';
 
 export default ()=>{
     const ground = ECS.instance.world.createEntity()
-    const texture = new THREE.TextureLoader().load('/public/prototype_512x512_blue3.png')
+    const texture = new THREE.TextureLoader().load('/prototype_512x512_blue3.png')
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             texture.repeat = new THREE.Vector2(20,20)

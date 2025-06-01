@@ -22,12 +22,12 @@ interface AssetMap {
 
 const ASSETS: AssetMap = {
     1: {
-        character: "/public/ybot/Y Bot.fbx",
+        character: "/ybot/Y Bot.fbx",
         animations: {
-            idle: "/public/ybot/Idle.fbx",
-            walk: "/public/ybot/Walking.fbx",
-            run: "/public/ybot/Running.fbx",
-            falling: "/public/ybot/Falling Idle.fbx",
+            idle: "/ybot/Idle.fbx",
+            walk: "/ybot/Walking.fbx",
+            run: "/ybot/Running.fbx",
+            falling: "/ybot/Falling Idle.fbx",
         },
     }
 };
