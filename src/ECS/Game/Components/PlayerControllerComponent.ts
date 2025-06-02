@@ -8,13 +8,17 @@ export type PlayerController = Component & {
   targetOffset: Vector3;
   socketOffset: Vector3;
   maxLengthMultiplier: number;
+  runSpeedMultiplier: number;
+  walkSpeedMultiplier: number;
+  airSpeedMultiplier: number;
+  groundSpeedMultiplier: number;
   moveVector:Vector3;
   nextPos:Vector3;
 };
 export const PlayerController = {
   _type: Types.PlayerController as ComponentTypeId,
   defaults:{
-    springArmLength: 10,
-    maxLengthMultiplier: 4,
+    springArmLength: 6,
+    maxLengthMultiplier: 25,
   }
 };

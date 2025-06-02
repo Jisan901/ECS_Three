@@ -64,8 +64,12 @@ export default () => {
     __type: PlayerController._type,
     target: characterColliderMesh,
     ...PlayerController.defaults,
-    targetOffset: new Vector3(),
-    socketOffset: new Vector3(),
+    targetOffset: new Vector3(0,2,0),
+    socketOffset: new Vector3(-1,0,0),
+    runSpeedMultiplier: 7,
+    walkSpeedMultiplier: 1,
+    airSpeedMultiplier: 12,
+    groundSpeedMultiplier:6,
     moveVector: new Vector3(),
     nextPos: new Vector3()
   });

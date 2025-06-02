@@ -138,7 +138,7 @@ export class Run extends State {
 
         this.action.reset();
         if (prev?.action) {
-            this.action.crossFadeFrom(prev.action, 0.3, true);
+            this.action.crossFadeFrom(prev.action, 0.14, true);
         }
         this.action.play();
     }

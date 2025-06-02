@@ -64,7 +64,7 @@ export class PlayerControllerSystem implements System {
             const padData = padState;
 
             
-            const speedFactor = padData.buttons.autoSwitch.switch ? 6 : 0;
+            const speedFactor = padData.buttons.autoSwitch.switch ? controller.runSpeedMultiplier : 0;
 
             
             const needTolerp = Math.abs(controller.moveVector.length()) > 0.001;
@@ -82,13 +82,13 @@ export class PlayerControllerSystem implements System {
                 target.quaternion.slerp(qx, smoothFactor);
             }
 
-            const armLength = lerp(this.previousArmLen, 6 + speedFactor, smoothFactor);
+            const armLength = lerp(this.previousArmLen, Math.min(controller.springArmLength + speedFactor,controller.maxLengthMultiplier), smoothFactor);
             this.previousArmLen = armLength;
 
-            const cameraTarget = target.position.clone().add(new THREE.Vector3(0, 3, 0));
+            const cameraTarget = target.position.clone().add(controller.targetOffset);
             const armVector = new THREE.Vector3(0, 0, -armLength).applyQuaternion(targetQuat);
             this.camera_holder_pawn.position.lerp(cameraTarget.clone().add(armVector), smoothFactor);
-            this.camera_holder.position.copy(new THREE.Vector3(-1, 0, 0));
+            this.camera_holder.position.copy(controller.socketOffset);
             this.camera_holder_pawn.lookAt(cameraTarget);
             this.camera_holder_pawn.updateMatrixWorld(true);
         }

@@ -42,11 +42,11 @@ export class PlayerInputSystem implements System {
             const padData = padState;
 
             const grounded = physics.isGrounded;
-            const speed = grounded ? 6 : 12;
-            const speedFactor = padData.buttons.autoSwitch.switch ? 6 : 0;
+            const speed = grounded ? controller.groundSpeedMultiplier : controller.airSpeedMultiplier;
+            const speedFactor = padData.buttons.autoSwitch.switch ? controller.runSpeedMultiplier : 0;
 
-            const moveX = hudData.deltaX * delta * speed;
-            const moveZ = (hudData.deltaY * delta * speed) + (speedFactor * delta * 5.0);
+            const moveX = hudData.deltaX * delta * speed * controller.walkSpeedMultiplier;
+            const moveZ = (hudData.deltaY * delta * speed * controller.walkSpeedMultiplier) + (speedFactor * delta * 5.0);
 
             const forward = target.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
             const left = new THREE.Vector3().crossVectors(forward, target.up).normalize();

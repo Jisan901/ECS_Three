@@ -1,0 +1,73 @@
+idea for: Terrain 
+
+    1. create and store heigt data in float32[] using perlin noise for multiple lod.
+    2. load lod based on terrain matrix int4[renderDist^2] // 0-5
+    3. create a mesh from the height data. vert will calculate on Shader.
+    4. use height to create physics heightfield. [later]
+    5. use naighbor lod to stich lod together (by assuming last verts as low lod).
+    6. calculate normals using height data in compute Shader and store as image.
+
+example :
+2.
+    terrain lod matrix: [
+        0,5,5,5,5,5,0,
+        5,4,4,4,4,4,5,
+        5,4,3,3,3,4,5,
+        5,4,3,2,3,4,5,
+        5,4,3,3,3,4,5,
+        5,4,4,4,4,4,5,
+        0,5,5,5,5,5,0
+    ] this will be circuler if no chunk lod value will be 0.
+
+
+calculateMatrix(
+                       r
+                       e
+                       n
+                       d
+                       e
+                       r
+              render-player-render
+                       r
+                       e
+                       n
+                       d
+                       e
+                       r
+) -> [matrix]
+
+
+function calculateMatrix(renderDist) {
+    const matrix = [];
+    for (let i = 0; i < renderDist; i++) {
+        const row = [];
+        for (let j = 0; j < renderDist; j++) {
+            // Example logic to determine LOD value based on distance
+            const lodValue = Math.max(0, 5 - Math.floor(Math.sqrt(i * i + j * j)));
+            row.push(lodValue);
+        }
+        matrix.push(row);
+    }
+    return matrix;
+}
+
+
+
+5. stiching
+
+    lod mat-> [vShader] <- height data
+    positions = Float32BufferAttribute(height data length * 3) 3 per vert
+    height = Float32BufferAttribute(height data) one per vert
+    none Indexed = true
+
+
+    float height = uheight;
+    float vertInOneRow = sqrt(totalVert);
+    float chunkSize = 32;
+    float vertIndex = gl_VertexID;
+    // get x z from index of matrix
+
+    float x = mod(vertIndex, vertInOneRow);
+    float z = floor(vertIndex / vertInOneRow);
+    
+    vec3 vPos = vec3(x, height, z);
