@@ -10,8 +10,157 @@
   <body>
     <div id="debug" class="fixed top-0 left-0  bg-[rgba(0,0,0,0.2)] text-white z-10"></div>
     <div id="wrapper"></div>
-    <script src="/src/eruda.js"></script>
+    <!-- <script src="/src/eruda.js"></script> -->
     <!-- <script type="module" src="/src/ECS/main.ts"></script> -->
     <script type="module" src="/src/test.scene.ts"></script>
   </body>
 </html>
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Random Pixel Canvas</title>
+</head>
+<body>
+  <script>
+function dot2(a, b) {
+  return a[0] * b[0] + a[1] * b[1];
+}
+
+function mix(a, b, t) {
+  return a * (1 - t) + b * t;
+}
+
+function fade(t) {
+  return t.map(v => v * v * v * (v * (v * 6 - 15) + 10));
+}
+
+function mod289(x) {
+  return x.map(v => v - Math.floor(v / 289) * 289);
+}
+
+function permute(x) {
+  return x.map(v => {
+    v = (v * 34.0 + 1.0) * v;
+    return v - Math.floor(v / 289.0) * 289.0;
+  });
+}
+
+function fract(x) {
+  return x - Math.floor(x);
+}
+
+ function cnoise(P, normalize = true) {
+  const Pi = [Math.floor(P[0]), Math.floor(P[1])];
+  const Pf = [P[0] - Pi[0], P[1] - Pi[1]];
+  const Pfm1 = [Pf[0] - 1.0, Pf[1] - 1.0];
+
+  const ix = [Pi[0], Pi[0] + 1, Pi[0], Pi[0] + 1];
+  const iy = [Pi[1], Pi[1], Pi[1] + 1, Pi[1] + 1];
+
+  const fx = [Pf[0], Pfm1[0], Pf[0], Pfm1[0]];
+  const fy = [Pf[1], Pf[1], Pfm1[1], Pfm1[1]];
+
+  const i = mod289(ix);
+  const j = mod289(iy);
+
+  const perm_i = permute(i);
+  const perm_ij = permute(perm_i.map((val, idx) => val + j[idx]));
+
+  let gx = perm_ij.map(val => fract(val * 0.0243902439) * 2.0 - 1.0);
+  let gy = gx.map(v => Math.abs(v) - 0.5);
+  const tx = gx.map(v => Math.floor(v + 0.5));
+  gx = gx.map((v, i) => v - tx[i]);
+
+  const g = [
+    [gx[0], gy[0]], [gx[1], gy[1]],
+    [gx[2], gy[2]], [gx[3], gy[3]],
+  ];
+
+  if (normalize) {
+    for (let k = 0; k < 4; k++) {
+      const d = dot2(g[k], g[k]);
+      const m = 1.79284291400159 - 0.85373472095314 * d;
+      g[k][0] *= m;
+      g[k][1] *= m;
+    }
+  }
+
+  const n00 = dot2(g[0], [fx[0], fy[0]]);
+  const n10 = dot2(g[1], [fx[1], fy[1]]);
+  const n01 = dot2(g[2], [fx[2], fy[2]]);
+  const n11 = dot2(g[3], [fx[3], fy[3]]);
+
+  const fade_xy = fade(Pf);
+  const nx0 = mix(n00, n10, fade_xy[0]);
+  const nx1 = mix(n01, n11, fade_xy[0]);
+  const nxy = mix(nx0, nx1, fade_xy[1]);
+
+  return 2.3 * nxy;
+}
+ function fbm(P, octaves = 4, lacunarity = 2.0, gain = 0.5) {
+  let total = 0;
+  let amplitude = 1.0;
+  let frequency = 1.0;
+  let maxAmplitude = 0.0;
+
+  for (let i = 0; i < octaves; i++) {
+    const scaledP = [P[0] * frequency, P[1] * frequency];
+    total += cnoise(scaledP) * amplitude;
+
+    maxAmplitude += amplitude;
+    amplitude *= gain;
+    frequency *= lacunarity;
+  }
+
+  return total / maxAmplitude; // Normalize
+}
+
+
+  </script>
+  <script>
+    // Create and configure the canvas
+    const size = 100; // Canvas width and height
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+
+   function anim(t) {
+     // Loop through every pixel
+     for (let i = 0; i < data.length; i += 4) {
+       const pixelIndex = i / 4;
+       const x = pixelIndex % size;
+       const y = Math.floor(pixelIndex / size);
+       const noiseVal = fbm([(x *0.05)+t*0.001, y*0.05 ]);
+       data[i]     = noiseVal * 255; // Red
+       data[i + 1] = noiseVal * 255; // Green
+       data[i + 2] = noiseVal * 255; // Blue
+       data[i + 3] = 255;             // Alpha (fully opaque)
+     }
+ 
+     // Apply the image data to the canvas
+     ctx.putImageData(imageData, 0, 0);
+     requestAnimationFrame(anim)
+    }
+    requestAnimationFrame(anim)
+
+
+
+
+    for (let y = 0; y < 20; y++) {
+  let row = '';
+  for (let x = 0; x < 80; x++) {
+    const val = fbm([x * 0.05, y * 0.05], 5); // More octaves = more detail
+    row += val > 0.4 ? '▓' : val > 0.2 ? '▒' : val > 0.0 ? '░' : ' ';
+  }
+  console.log(row);
+}
+
+  </script>
+</body>
+</html> -->

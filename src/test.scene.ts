@@ -1,7 +1,32 @@
 import * as THREE from 'three/webgpu';
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
-import { attribute, float, floor, If, mod, pow, uniform, vec2, vec3, vec4, vertexIndex } from 'three/tsl';
+import { BufferGeometryUtils, OrbitControls } from 'three/examples/jsm/Addons.js';
+import { attribute, float, floor, Fn, If, min, mix, mod, positionGeometry, positionLocal, pow, uniform, vec2, vec3, vec4, vertexIndex } from 'three/tsl';
+import { cnoise } from './Application/Utils/cnoise';
+import GUI from 'lil-gui';
+/**
+ * Returns the amount of bytes used by all attributes to represent the geometry.
+ *
+ * @param {BufferGeometry} geometry - The geometry.
+ * @return {number} The estimate bytes used.
+ */
+function estimateBytesUsed( geometry: THREE.BufferGeometry ): number {
 
+    // Return the estimated memory used by this geometry in bytes
+    // Calculate using itemSize, count, and BYTES_PER_ELEMENT to account
+    // for InterleavedBufferAttributes.
+    let mem = 0;
+    for ( const name in geometry.attributes ) {
+
+        const attr = geometry.getAttribute( name );
+        mem += attr.count * attr.itemSize * attr.array.BYTES_PER_ELEMENT;
+
+    }
+
+    const indices = geometry.getIndex();
+    mem += indices ? indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT : 0;
+    return mem;
+
+}
 let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGPURenderer;
 
 scene = new THREE.Scene();
@@ -14,6 +39,7 @@ document.body.appendChild(renderer.domElement);
 
 
 scene.add(new THREE.GridHelper())
+scene.add(new THREE.AxesHelper())
 
 const terrain = {
     width: 1000, // 1km
@@ -22,6 +48,7 @@ const terrain = {
     chunkSize: 100,
 }
 
+const gui = new GUI()
 
 export class Chunk{
     private lod: number; // Level of Detail
@@ -63,31 +90,132 @@ export class Chunk{
         }
         geometry.setIndex(this.indices)
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positionData, 3));
+        BufferGeometryUtils.toTrianglesDrawMode(geometry, THREE.TriangleStripDrawMode)
        
         geometry.computeBoundingBox()
         geometry.computeVertexNormals(); // Compute normals for lighting
-        console.log(geometry);
-        
-        const material = new THREE.MeshStandardNodeMaterial({ color: 0x00ff00, side:THREE.DoubleSide, wireframe: false });
+       
+        const material = new THREE.MeshStandardNodeMaterial({ color: 0x00ff00, side:THREE.DoubleSide, wireframe: true });
 
 
         const center = uniform(vec2(this.center.x, this.center.z))
-        const cunkindex = uniform(float(this.index))
+        const chunkIndex = uniform(float(this.index))
         const lod = uniform(float(this.lod))
-        const neibLods = uniform(vec4(0,0,2,0))//[+x,-x,+z,-z]
-
-        const segmentXy = pow(2, float(5).sub(lod)).toInt()
+        const neibLods = uniform(vec4(2,2,2,2))//[+x,-x,+z,-z]
+        const interpolationFactor = uniform(float(0.0))
+        const segmentXy = pow(2, float(5).sub(lod)).add(1).toInt()
 
         // vertexIndex  = vertexIndex
 
-        const row = floor(vertexIndex.div(segmentXy))
-        const col = mod(vertexIndex, segmentXy)
-        
-        If(neibLods.x.greaterThan(lod).and(row.equal(1)),()=>{
-
-        })
+        const row = floor(vertexIndex.toInt().div(segmentXy).toFloat()).toVar()
+        const col = mod(vertexIndex.toInt(), segmentXy).toVar()
         
 
+        const stitchingPosition = Fn( ( { position}:{ position:THREE.TSL.ShaderNodeObject<THREE.Node> } ) => {
+            const result = position.toVec3().toVar();
+            If(
+            row.equal(segmentXy.sub(1)).and(neibLods.z.greaterThan(lod)),
+                () => {
+                    const neibLOD = neibLods.z;
+
+                    const segmentNeighbor = pow(2.0, float(5).sub(neibLOD)).add(1.0);
+                    const segmentCurrent = pow(2.0, float(5).sub(lod)).add(1.0);
+                    const step = segmentCurrent.sub(1.0).div(segmentNeighbor.sub(1.0)).toVar();
+                    const spacing = float(100.0).div(segmentCurrent.sub(1.0)).toVar(); // chunkSize = 100
+                    const spacingNeighbor = float(100.0).div(segmentNeighbor.sub(1.0)).toVar(); // chunkSize = 100
+                    const colF = col.toFloat();
+                    const modedCol = mod(colF, step).toVar()
+                    const isShared = modedCol.equal(0.0);
+
+                    If(isShared.not(), () => {
+
+                        const worldX = result.x.add(center.x);
+                        const worldZ = result.z.add(center.y);
+
+                        const cmX = modedCol.mul(spacing)
+                        
+                        const leftX = positionLocal.x.sub(cmX);
+                        const rightX = positionLocal.x.add(spacingNeighbor.sub(cmX))
+
+
+                        const z = center.y;
+
+                        const stepSize = step.mul(spacing);
+                        
+                        
+                        const t = (stepSize).div(spacingNeighbor);
+
+                        const h1 = min(7,float(5).mul(cnoise({ P: vec2(center.x.add(leftX).mul(0.1), z.add(result.z).mul(0.1)) })));
+                        const h2 = min(7,float(5).mul(cnoise({ P: vec2(center.x.add(rightX).mul(0.1), z.add(result.z).mul(0.1)) })));
+
+                        result.y.assign(mix(h1, h2, interpolationFactor));
+                        //result.y.assign(0)
+                    });
+
+                }
+            );
+
+
+            If(
+                col.equal(0).and(neibLods.x.greaterThan(lod)),
+                () => {
+                    result.addAssign(vec3(0,0,0))
+                }
+            );
+
+            If(
+                row.equal(segmentXy.sub(1)).and(neibLods.w.greaterThan(lod)),
+                () => {
+                    result.addAssign(vec3(0,0,0))
+                }
+            );
+
+            If(
+                col.equal(segmentXy.sub(1)).and(neibLods.y.greaterThan(lod)),
+                () => {
+                    result.addAssign(vec3(0,0,0))
+                }
+            );
+
+
+            return result
+        } );
+
+        // // Stitching logic for all 4 directions (+x, -x, +z, -z)
+        // // +x direction: first col stitched if neighbor +x has higher lod
+        // If(
+        //    col.greaterThan(0),
+        //     () => {
+        //     }
+        // );
+        material.positionNode = stitchingPosition({position : positionLocal});
+        material.colorNode = vec3(lod.div(5)).add(cnoise({P:vec2(positionLocal.xz.mul(0.1))}));
+
+        // // -x direction: last col stitched if neighbor -x has higher lod
+        // If(
+        //     neibLods.y.greaterThan(lod).and(col.equal(segmentXy)),
+        //     () => {
+        //     material.positionNode = vec3(positionGeometry.xyz).add(vec3(0,5,0))
+        //     }
+        // );
+
+        // // +z direction: first row stitched if neighbor +z has higher lod
+        // If(
+        //     neibLods.z.greaterThan(lod).and(row.equal(0)),
+        //     () => {
+        //     material.positionNode = vec3(positionGeometry.xyz).add(vec3(0,5,0))
+        //     }
+        // );
+
+        // // -z direction: last row stitched if neighbor -z has higher lod
+        // If(
+        //     neibLods.w.greaterThan(lod).and(row.equal(segmentXy)),
+        //     () => {
+        //     material.positionNode = vec3(positionGeometry.xyz).add(vec3(0,5,0))
+        //     }
+        // );
+
+        // material.positionNode = vec3(positionGeometry.xyz).add(vec3(0,5,0))
         
     //         If( conditional, function )
     // .ElseIf( conditional, function )
@@ -104,7 +232,7 @@ export class Chunk{
       
       
 
-
+        gui.add(interpolationFactor,'value',0.1,1)
         const mesh = new THREE.Mesh(geometry, material);
         
         mesh.position.set(this.center.x, 0, this.center.z);
@@ -116,9 +244,9 @@ export class Chunk{
 
 
 
-(new Chunk(1,{x:100,z:0})).load();
-(new Chunk(2,{x:100,z:100})).load();
-(new Chunk(3,{x:100,z:200})).load();
+(new Chunk(1,{x:0,z:0})).load();
+(new Chunk(2,{x:0,z:100})).load();
+
 
 
 
