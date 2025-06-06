@@ -63,6 +63,7 @@ export class Thrade {
     }
 
     start(): void {
+        
         this.worker?.postMessage({ type: "boot", data: this.data });
     }
 

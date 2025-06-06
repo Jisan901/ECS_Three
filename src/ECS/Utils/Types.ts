@@ -15,7 +15,8 @@ export const Types = {
     Network: 7,
     PlayerController:8,
     PlayerPhysics:9,
-    Animation:10
+    Animation:10,
+    TerrainComponent:11
   } as const;
   
 export type ComponentTypes = keyof typeof Types;

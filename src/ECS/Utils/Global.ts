@@ -1,5 +1,6 @@
 import type GUI from "lil-gui";
 import { ECS } from "./bootstrap";
+import { Vector3 } from "three";
 
 /*
     * Global.ts
@@ -13,7 +14,7 @@ import { ECS } from "./bootstrap";
 export class Global{
     // define . use Esc.instance.global.VariableName to access these variables
     public isGrounded: boolean = true;
-
+    public playerPosition = new Vector3()
 
 
 
@@ -33,9 +34,9 @@ export class Global{
         const lil = ECS.instance.lil;
         this._globalFolder = lil.addFolder('Global');
         // auto map every prop .
-        Object.getOwnPropertyNames(this).forEach((prop) => {
-            if (prop.startsWith('_')) return; // skip private properties
-            this._globalFolder?.add(this, (prop as keyof this)).name(prop);
-        });
+        // Object.getOwnPropertyNames(this).forEach((prop) => {
+        //     if (prop.startsWith('_')) return; // skip private properties
+        //     this._globalFolder?.add(this, (prop as keyof this)).name(prop);
+        // });
     }
 }

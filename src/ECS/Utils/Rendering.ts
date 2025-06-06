@@ -33,11 +33,11 @@ export default function setUpThree() {
     );
     debugCamera.position.set(0, 0, -10);
 
-    //const controls = new OrbitControls(debugCamera, document.body);
-   // controls.update();
+    const controls = new OrbitControls(debugCamera, document.body);
+    controls.update();
     function render(scene: THREE.Scene) {
-        renderer.renderAsync(scene, camera);
-        //controls.update()
+        renderer.renderAsync(scene, debugCamera);
+        controls.update()
     }
 
     // Handle resizing

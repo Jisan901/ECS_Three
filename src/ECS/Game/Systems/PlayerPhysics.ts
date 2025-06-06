@@ -97,6 +97,7 @@ export class PlayerPhysicsSystem implements System {
       //const rot = rb.rotation();
 
       renderable.mesh.position.lerp(moveController.nextPos,1.0 - Math.pow(0.001, this.ecs.time.deltaTime));
+      this.ecs.Global.playerPosition.copy(renderable.mesh.position)
       //renderable.mesh.position.add(moveController.moveVector);
       //renderable.mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
     }

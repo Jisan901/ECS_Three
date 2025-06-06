@@ -10,6 +10,7 @@ import { InputData } from '../../Application/Utils/GamePad';
 import { Debug } from './Debug';
 import GUI from 'lil-gui';
 import { Global } from './Global';
+import { ThradePool } from '../../Application/Parallelisms';
 
 export class ECS {
   static instance: ECS;
@@ -24,11 +25,15 @@ export class ECS {
   readonly dev:Debug;
   readonly lil:GUI;
   readonly Global:Global;
-  
+  readonly JobSystem:ThradePool;
+
   constructor(physicsEngine:PhysicsEngine) {
     this.dev = new Debug()
     this.lil = new GUI()
     this.Global = new Global();
+    this.JobSystem = new ThradePool(3);
+
+
     this.world = new World();
     this.time = new Time();
     this.bus = new Communicator();
@@ -44,6 +49,7 @@ export class ECS {
 
   update(rawDelta: number) {
     this.time.update(rawDelta);
+    this.JobSystem.update(this.time.deltaTime);
     this.world.update();
     Physics.update(this.Physics.world, this.time.deltaTime)
   }
@@ -56,6 +62,7 @@ export function bootstrap(p:PhysicsEngine,f:()=>void) {
   const ecs = new ECS(p);
   ecs.Global._useGUIDebug();
   f() // init fn 
+  // ecs.JobSystem.start()
 
   function tick(now: number) {
     const delta = (now - lastTime) / 1000;

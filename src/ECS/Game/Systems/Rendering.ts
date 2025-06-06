@@ -22,6 +22,7 @@ export class RenderingSystem implements System {
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color(0xa0a0a0);
         this.directionalLight = new THREE.DirectionalLight(0xF4E99B, 10);
+        this.directionalLight.position.set(5,5,2)
         this.scene.add(this.directionalLight)
         
         this.debug = false;
